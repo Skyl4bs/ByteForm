@@ -58,8 +58,25 @@ const options = [
 export default function WelcomePage() {
   const [email, setEmail] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [creating, setCreating] = useState(false);
   const router = useRouter();
   const supabase = createClient();
+
+  async function handleStartBuilding() {
+    setCreating(true);
+    const slug = `form-${Date.now().toString(36)}`;
+    const res = await fetch("/api/forms", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title: "Untitled Form", slug }),
+    });
+    if (res.ok) {
+      const form = await res.json();
+      router.push(`/builder/${form.id}`);
+    } else {
+      setCreating(false);
+    }
+  }
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -161,13 +178,25 @@ export default function WelcomePage() {
                   fontSize: 12, color: D, border: `0.5px solid ${WA(0.1)}`,
                   padding: "6px 14px", borderRadius: 6, whiteSpace: "nowrap", flexShrink: 0,
                 }}>{cta}</span>
+              ) : primary ? (
+                <button
+                  onClick={handleStartBuilding}
+                  disabled={creating}
+                  style={{
+                    fontSize: 13, whiteSpace: "nowrap", flexShrink: 0,
+                    padding: "9px 20px", borderRadius: 7,
+                    background: creating ? `${WA(0.5)}` : W,
+                    color: I, border: "none", cursor: creating ? "wait" : "pointer",
+                  }}
+                >
+                  {creating ? "Creating…" : cta}
+                </button>
               ) : (
                 <Link href={href} style={{
                   fontSize: 13, textDecoration: "none", whiteSpace: "nowrap", flexShrink: 0,
                   padding: "9px 20px", borderRadius: 7,
-                  background: primary ? W : "transparent",
-                  color: primary ? I : W,
-                  border: primary ? "none" : `0.5px solid ${WA(0.25)}`,
+                  background: "transparent", color: W,
+                  border: `0.5px solid ${WA(0.25)}`,
                 }}>{cta}</Link>
               )}
             </div>

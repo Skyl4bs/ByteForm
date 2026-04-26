@@ -1,7 +1,5 @@
-"use client";
-
-import { FormBuilder } from "@/components/builder/FormBuilder";
+import { redirect } from "next/navigation";
 
 export default function BuilderPage() {
-  return <FormBuilder />;
+  redirect("/dashboard");
 }

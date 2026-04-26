@@ -152,6 +152,10 @@ export function useFormBuilder(initialForm?: Form) {
     setForm((f) => ({ ...f, title, updatedAt: new Date().toISOString() }));
   }, []);
 
+  const updateFormSlug = useCallback((slug: string) => {
+    setForm((f) => ({ ...f, slug, updatedAt: new Date().toISOString() }));
+  }, []);
+
   const setPublished = useCallback((isPublished: boolean) => {
     setForm((f) => ({ ...f, isPublished, updatedAt: new Date().toISOString() }));
   }, []);
@@ -171,6 +175,7 @@ export function useFormBuilder(initialForm?: Form) {
     updateWelcomeScreen,
     updateThankYouScreen,
     updateFormTitle,
+    updateFormSlug,
     setPublished,
   };
 }
