@@ -1,7 +1,7 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/shared/lib/supabase/server";
 import { redirect, notFound } from "next/navigation";
-import { SaveableFormBuilder } from "./client";
-import type { Form } from "@/types/form";
+import { SaveableFormBuilder } from "@/features/builder/components/FormBuilderShell";
+import type { Form } from "@/shared/types/form";
 
 interface Props {
   params: Promise<{ id: string }>;

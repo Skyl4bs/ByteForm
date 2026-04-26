@@ -1,6 +1,6 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/shared/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { DashboardClient } from "./client";
+import { DashboardClient } from "@/features/dashboard/components/DashboardClient";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -19,23 +19,22 @@ export default async function DashboardPage() {
     .order("updated_at", { ascending: false });
 
   const formIds = (forms ?? []).map((f) => f.id);
-  let responseCounts: Record<string, number> = {};
+  const responseCounts: Record<string, number> = {};
   if (formIds.length > 0) {
     const { data: subs } = await supabase
       .from("submissions")
       .select("form_id")
       .in("form_id", formIds);
     if (subs) {
-      subs.forEach((s) => {
+      for (const s of subs) {
         responseCounts[s.form_id] = (responseCounts[s.form_id] ?? 0) + 1;
-      });
+      }
     }
   }
 
   return (
     <DashboardClient
       forms={forms ?? []}
-      userEmail={user.email ?? ""}
       responseCounts={responseCounts}
     />
   );

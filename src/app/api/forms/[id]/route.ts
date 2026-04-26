@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
-import { updateFormSchema } from "@/lib/validation/forms";
+import { createClient } from "@/shared/lib/supabase/server";
+import { updateFormSchema } from "@/shared/lib/validation/forms";
 
 export async function GET(
   _request: Request,

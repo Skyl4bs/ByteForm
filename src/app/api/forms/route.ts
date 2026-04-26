@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
-import { createFormSchema } from "@/lib/validation/forms";
+import { createClient } from "@/shared/lib/supabase/server";
+import { createFormSchema } from "@/shared/lib/validation/forms";
 
 export async function GET() {
   const supabase = await createClient();

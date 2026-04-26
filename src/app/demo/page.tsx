@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FormView } from "@/components/form/FormView";
-import { demoForm } from "@/lib/demo-form";
+import { FormView } from "@/features/runtime";
+import { demoForm } from "@/shared/lib/demo-form";
 import Link from "next/link";
 
 const W = "#6B1A2A";
