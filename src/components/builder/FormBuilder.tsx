@@ -9,6 +9,9 @@ import {
   ThankYouScreenEditor,
 } from "./QuestionEditor";
 import { FormView } from "@/components/form/FormView";
+import { UserMenu } from "@/components/UserMenu";
+
+const serif = { fontFamily: "var(--font-serif)" } as const;
 
 export function FormBuilder() {
   const builder = useFormBuilder();
@@ -34,8 +37,12 @@ export function FormBuilder() {
       {/* Top bar */}
       <header className="flex items-center justify-between px-4 py-3 border-b border-border flex-shrink-0">
         <div className="flex items-center gap-4">
-          <a href="/" className="text-lg font-bold tracking-tight">
-            byte<span className="text-[#4f46e5]">form</span>
+          <a href="/dashboard" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
+            <img src="/logo-icon.svg" alt="ByteForm" style={{ height: 28, width: 28 }} />
+            <div style={{ display: "flex", alignItems: "baseline", gap: 1 }}>
+              <span style={{ ...serif, fontSize: 17, color: "#1C1410", letterSpacing: "-0.3px" }}>Byte</span>
+              <span style={{ ...serif, fontSize: 17, color: "#6B1A2A", letterSpacing: "-0.3px" }}>Form</span>
+            </div>
           </a>
           <div className="h-5 w-px bg-border" />
           <input
@@ -51,6 +58,7 @@ export function FormBuilder() {
           <span className="text-xs text-muted-foreground">
             {form.questions.length} question{form.questions.length !== 1 ? "s" : ""}
           </span>
+          <UserMenu />
         </div>
       </header>
 
@@ -126,9 +134,27 @@ export function FormBuilder() {
             </span>
           </div>
           <div className="flex-1 relative bg-bg overflow-hidden">
-            <div className="absolute inset-0">
-              <FormView form={form} key={JSON.stringify(form)} />
-            </div>
+            {form.questions.length === 0 ? (
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-8">
+                <div className="w-12 h-12 rounded-xl border border-border flex items-center justify-center mb-5"
+                  style={{ background: "rgba(107,26,42,0.04)", borderColor: "rgba(107,26,42,0.15)" }}>
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M10 4v12M4 10h12" stroke="#6B1A2A" strokeWidth="1.5" strokeLinecap="round" />
+                  </svg>
+                </div>
+                <p className="text-sm font-medium text-foreground mb-2">
+                  Add your first question
+                </p>
+                <p className="text-xs text-muted-foreground max-w-xs leading-relaxed">
+                  Click <span className="font-medium text-foreground">+ Add question</span> in the left panel to get started.
+                  Your live preview will appear here.
+                </p>
+              </div>
+            ) : (
+              <div className="absolute inset-0">
+                <FormView form={form} key={JSON.stringify(form)} />
+              </div>
+            )}
           </div>
         </div>
 
