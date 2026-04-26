@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/shared/lib/supabase/server";
 import {
   submissionSchema,
   validateAnswersAgainstQuestions,
-} from "@/lib/validation/forms";
-import type { Question } from "@/types/form";
+} from "@/shared/lib/validation/forms";
+import type { Question } from "@/shared/types/form";
 
 export async function GET(
   _request: Request,

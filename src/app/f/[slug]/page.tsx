@@ -1,7 +1,7 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/shared/lib/supabase/server";
 import { notFound } from "next/navigation";
-import { PublicFormClient } from "./client";
-import type { Form } from "@/types/form";
+import { PublicFormShell } from "@/features/runtime";
+import type { Form } from "@/shared/types/form";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -35,5 +35,5 @@ export default async function PublicFormPage({ params }: Props) {
     updatedAt: dbForm.updated_at,
   };
 
-  return <PublicFormClient form={form} />;
+  return <PublicFormShell form={form} />;
 }
