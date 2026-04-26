@@ -1,6 +1,9 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+const PROTECTED = ["/builder", "/dashboard", "/welcome"];
+const AUTH_ONLY = ["/auth/login"]; // redirect away if already logged in
+
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
@@ -25,7 +28,27 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
+  const { pathname } = request.nextUrl;
+
+  // Not logged in → redirect to login for protected routes
+  const isProtected = PROTECTED.some((p) => pathname.startsWith(p));
+  if (isProtected && !user) {
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = "/auth/login";
+    loginUrl.searchParams.set("mode", "signup");
+    loginUrl.searchParams.set("next", pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  // Already logged in → redirect away from login page to dashboard
+  const isAuthPage = AUTH_ONLY.some((p) => pathname.startsWith(p));
+  if (isAuthPage && user) {
+    const dashUrl = request.nextUrl.clone();
+    dashUrl.pathname = "/dashboard";
+    dashUrl.search = "";
+    return NextResponse.redirect(dashUrl);
+  }
 
   return supabaseResponse;
 }

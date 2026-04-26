@@ -4,6 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { Database } from "@/types/database";
+import { UserMenu } from "@/components/UserMenu";
+
+const serif = { fontFamily: "var(--font-serif)" } as const;
 
 type FormRow = Database["public"]["Tables"]["forms"]["Row"];
 
@@ -48,18 +51,14 @@ export function DashboardClient({ forms: initialForms, userEmail }: Props) {
       {/* Header */}
       <header className="border-b border-border">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <a href="/" className="text-xl font-bold">
-            byte<span className="text-[#4f46e5]">form</span>
+          <a href="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
+            <img src="/logo-icon.svg" alt="ByteForm" style={{ height: 30, width: 30 }} />
+            <div style={{ display: "flex", alignItems: "baseline", gap: 1 }}>
+              <span style={{ ...serif, fontSize: 18, color: "#1C1410", letterSpacing: "-0.3px" }}>Byte</span>
+              <span style={{ ...serif, fontSize: 18, color: "#6B1A2A", letterSpacing: "-0.3px" }}>Form</span>
+            </div>
           </a>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">{userEmail}</span>
-            <button
-              onClick={handleSignOut}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Sign out
-            </button>
-          </div>
+          <UserMenu />
         </div>
       </header>
 
@@ -68,8 +67,8 @@ export function DashboardClient({ forms: initialForms, userEmail }: Props) {
           <h1 className="text-2xl font-bold text-foreground">Your forms</h1>
           <button
             onClick={handleCreateForm}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#4f46e5]
-              hover:bg-[#6366f1] text-white text-sm font-medium transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#6B1A2A]
+              hover:bg-[#8B2A3A] text-white text-sm font-medium transition-colors"
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M8 3V13M3 8H13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -107,7 +106,7 @@ export function DashboardClient({ forms: initialForms, userEmail }: Props) {
               <div
                 key={form.id}
                 className="group border border-border rounded-lg p-5 bg-card
-                  hover:border-[#4f46e5]/50 transition-colors cursor-pointer"
+                  hover:border-[#6B1A2A]/30 transition-colors cursor-pointer"
                 onClick={() => router.push(`/builder/${form.id}`)}
               >
                 <div className="flex items-start justify-between mb-4">
@@ -138,7 +137,7 @@ export function DashboardClient({ forms: initialForms, userEmail }: Props) {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}
-                    className="text-xs text-[#4f46e5] hover:underline"
+                    className="text-xs text-[#6B1A2A] hover:underline"
                   >
                     View form
                   </a>
@@ -146,7 +145,7 @@ export function DashboardClient({ forms: initialForms, userEmail }: Props) {
                   <a
                     href={`/dashboard/${form.id}/responses`}
                     onClick={(e) => e.stopPropagation()}
-                    className="text-xs text-[#4f46e5] hover:underline"
+                    className="text-xs text-[#6B1A2A] hover:underline"
                   >
                     Responses
                   </a>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
 const W = '#6B1A2A'
@@ -56,6 +56,14 @@ export default function Home() {
   const [demoValue, setDemoValue] = useState('')
   const [demoSubmitted, setDemoSubmitted] = useState(false)
 
+  // Scroll-aware nav
+  const [scrolled, setScrolled] = useState(false)
+  useEffect(() => {
+    function onScroll() { setScrolled(window.scrollY > 10) }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
   // Hero interactive demo
   const [heroStep, setHeroStep] = useState(0)
   const [heroAnswers, setHeroAnswers] = useState<(string | null)[]>([null, null, null])
@@ -83,9 +91,14 @@ export default function Home() {
       {/* ── NAV ── */}
       <nav style={{
         position: 'sticky', top: 0, zIndex: 50,
-        background: I, borderBottom: `0.5px solid ${WA(0.12)}`,
+        background: scrolled ? 'rgba(247,243,236,0.92)' : I,
+        backdropFilter: scrolled ? 'blur(12px)' : 'none',
+        WebkitBackdropFilter: scrolled ? 'blur(12px)' : 'none',
+        borderBottom: `0.5px solid ${scrolled ? WA(0.18) : WA(0.08)}`,
+        boxShadow: scrolled ? '0 2px 16px rgba(28,20,16,0.06)' : 'none',
         padding: '0 40px', height: 60,
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        transition: 'background 0.25s, border-color 0.25s, box-shadow 0.25s',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <img src="/logo-icon.svg" alt="ByteForm icon" style={{ height: 34, width: 34 }} />
@@ -95,10 +108,10 @@ export default function Home() {
           </div>
         </div>
         <div style={{ display: 'flex', gap: 32, alignItems: 'center' }}>
-          {['Features', 'Pricing', 'Docs'].map(item => (
-            <a key={item} href={`#${item.toLowerCase()}`}
+          {[['Features', '#features'], ['Pricing', '#pricing'], ['Demo', '/demo']].map(([label, href]) => (
+            <a key={label} href={href}
               style={{ fontSize: 13, color: M, textDecoration: 'none', cursor: 'pointer' }}>
-              {item}
+              {label}
             </a>
           ))}
         </div>
@@ -108,7 +121,7 @@ export default function Home() {
             border: `0.5px solid ${WA(0.25)}`, padding: '8px 18px',
             borderRadius: 6, cursor: 'pointer',
           }}>Log in</Link>
-          <Link href="/builder" style={{
+          <Link href="/auth/login?mode=signup" style={{
             fontSize: 13, color: I, background: W,
             border: 'none', padding: '8px 18px',
             borderRadius: 6, cursor: 'pointer', textDecoration: 'none',
@@ -145,7 +158,7 @@ export default function Home() {
           Your forms are the first impression. Make them count without the $99/mo bill. Byteform builds beautiful, AI-powered forms your audience genuinely wants to complete.
           </p>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
-            <Link href="/builder" style={{
+            <Link href="/auth/login?mode=signup" style={{
               background: W, color: I, border: 'none',
               padding: '13px 28px', borderRadius: 8, fontSize: 14,
               cursor: 'pointer', textDecoration: 'none', display: 'inline-block',
@@ -193,7 +206,7 @@ export default function Home() {
                   That calm, focused experience? That's what your users will feel every time they fill a ByteForm.
                 </p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  <Link href="/builder" style={{
+                  <Link href="/auth/login?mode=signup" style={{
                     display: 'block', background: W, color: I, textDecoration: 'none',
                     padding: '11px 0', borderRadius: 7, fontSize: 13, textAlign: 'center',
                   }}>
@@ -787,7 +800,7 @@ export default function Home() {
         <p style={{ fontSize: 15, color: IA(0.45), maxWidth: 380, margin: '0 auto 40px', lineHeight: 1.75 }}>
           So do you. Build something that feels as good as the product you're building.
         </p>
-        <Link href="/builder" style={{
+        <Link href="/auth/login?mode=signup" style={{
           display: 'inline-block', background: I, color: W,
           border: 'none', padding: '15px 40px', borderRadius: 8,
           fontSize: 14, fontWeight: 500, cursor: 'pointer',

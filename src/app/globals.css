@@ -8,17 +8,17 @@
   --font-sans: var(--font-sans);
   --font-heading: var(--font-sans);
 
-  /* Byteform custom colors */
-  --color-bg: #0a0a0a;
-  --color-bg-card: #141414;
-  --color-fg: #ededed;
-  --color-fg-muted: #8a8a8a;
-  --color-fg-dim: #555555;
-  --color-accent: #4f46e5;
-  --color-accent-hover: #6366f1;
-  --color-accent-glow: rgba(99, 102, 241, 0.15);
-  --color-border: #2a2a2a;
-  --color-border-focus: #4f46e5;
+  /* Byteform custom colors — ivory/wine brand theme (used by FormView) */
+  --color-bg: #F7F3EC;
+  --color-bg-card: #EDE8DF;
+  --color-fg: #1C1410;
+  --color-fg-muted: #7A6A60;
+  --color-fg-dim: #9A8A80;
+  --color-accent: #6B1A2A;
+  --color-accent-hover: #8B2A3A;
+  --color-accent-glow: rgba(107, 26, 42, 0.12);
+  --color-border: rgba(107, 26, 42, 0.14);
+  --color-border-focus: #6B1A2A;
   --color-success: #22c55e;
   --color-error: #ef4444;
 
@@ -102,8 +102,8 @@ body {
 
 /* Selection */
 ::selection {
-  background: var(--color-accent);
-  color: white;
+  background: rgba(107, 26, 42, 0.15);
+  color: #1C1410;
 }
 
 /* Buttons get focus ring, inputs handle their own */
@@ -124,9 +124,9 @@ select:focus {
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus {
-  -webkit-box-shadow: 0 0 0px 1000px var(--color-bg) inset;
-  -webkit-text-fill-color: var(--color-fg);
-  caret-color: var(--color-fg);
+  -webkit-box-shadow: 0 0 0px 1000px #F7F3EC inset;
+  -webkit-text-fill-color: #1C1410;
+  caret-color: #1C1410;
   transition: background-color 5000s ease-in-out 0s;
 }
 
