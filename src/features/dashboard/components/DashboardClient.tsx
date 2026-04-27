@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useCallback, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { Database } from "@/shared/types/database";
@@ -209,7 +209,14 @@ export function DashboardClient({ forms: initialForms, responseCounts }: Props) 
   const [forms, setForms] = useState(initialForms);
   const [creating, setCreating] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const router = useRouter();
+
+  const pendingDeleteForm = useMemo(
+    () => forms.find((f) => f.id === pendingDeleteId) ?? null,
+    [forms, pendingDeleteId],
+  );
 
   const { totalResponses, publishedCount } = useMemo(() => ({
     totalResponses: Object.values(responseCounts).reduce((a, b) => a + b, 0),
@@ -232,12 +239,35 @@ export function DashboardClient({ forms: initialForms, responseCounts }: Props) 
     }
   }, [router]);
 
-  const handleDeleteForm = useCallback(async (id: string) => {
-    const res = await fetch(`/api/forms/${id}`, { method: "DELETE" });
-    if (res.ok) {
-      setForms((prev) => prev.filter((f) => f.id !== id));
-    }
+  const handleDeleteForm = useCallback((id: string) => {
+    setPendingDeleteId(id);
   }, []);
+
+  const cancelDelete = useCallback(() => {
+    if (deleting) return;
+    setPendingDeleteId(null);
+  }, [deleting]);
+
+  const confirmDelete = useCallback(async () => {
+    if (!pendingDeleteId) return;
+    setDeleting(true);
+    const res = await fetch(`/api/forms/${pendingDeleteId}`, { method: "DELETE" });
+    if (res.ok) {
+      setForms((prev) => prev.filter((f) => f.id !== pendingDeleteId));
+    }
+    setDeleting(false);
+    setPendingDeleteId(null);
+  }, [pendingDeleteId]);
+
+  useEffect(() => {
+    if (!pendingDeleteId) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") cancelDelete();
+      else if (e.key === "Enter") confirmDelete();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [pendingDeleteId, cancelDelete, confirmDelete]);
 
   const handleCopyLink = useCallback((slug: string, id: string) => {
     const url = `${window.location.origin}/f/${slug}`;
@@ -372,6 +402,86 @@ export function DashboardClient({ forms: initialForms, responseCounts }: Props) 
         )}
       </main>
 
+      {pendingDeleteForm && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-form-title"
+          onClick={cancelDelete}
+          style={{
+            position: "fixed", inset: 0, zIndex: 300,
+            background: "rgba(28,20,16,0.45)",
+            backdropFilter: "blur(4px)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            padding: 24,
+            animation: "dashboardOverlayIn 0.15s ease-out both",
+          }}
+        >
+          <div
+            onClick={stopPropagation}
+            style={{
+              background: "white", borderRadius: 14,
+              border: `0.5px solid ${WA(0.14)}`,
+              boxShadow: "0 20px 60px rgba(28,20,16,0.25)",
+              width: "100%", maxWidth: 400,
+              padding: 24,
+              animation: "dashboardDialogIn 0.18s cubic-bezier(0.16,1,0.3,1) both",
+            }}
+          >
+            <div style={{
+              width: 40, height: 40, borderRadius: 10, marginBottom: 16,
+              background: "rgba(239,68,68,0.1)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              <svg width="18" height="18" viewBox="0 0 12 12" fill="none">
+                <path d="M2 3.5H10M4.5 3.5V2.5C4.5 2.22 4.72 2 5 2H7C7.28 2 7.5 2.22 7.5 2.5V3.5M9 3.5V9.5C9 10.05 8.55 10.5 8 10.5H4C3.45 10.5 3 10.05 3 9.5V3.5" stroke="#ef4444" strokeWidth="1.2" strokeLinecap="round" />
+              </svg>
+            </div>
+            <h2 id="delete-form-title" style={{
+              ...serif, fontSize: 20, fontWeight: 400, color: B,
+              letterSpacing: "-0.3px", margin: "0 0 6px",
+            }}>
+              Delete this form?
+            </h2>
+            <p style={{ fontSize: 13, color: M, margin: "0 0 20px", lineHeight: 1.5 }}>
+              <strong style={{ color: B, fontWeight: 500 }}>{pendingDeleteForm.title}</strong>
+              {" "}and all of its responses will be permanently removed. This can't be undone.
+            </p>
+            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+              <button
+                onClick={cancelDelete}
+                disabled={deleting}
+                style={{
+                  padding: "8px 16px", borderRadius: 8,
+                  background: "white", color: B,
+                  fontSize: 13, fontWeight: 500,
+                  border: `0.5px solid ${WA(0.18)}`,
+                  cursor: deleting ? "not-allowed" : "pointer",
+                  opacity: deleting ? 0.5 : 1,
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                disabled={deleting}
+                autoFocus
+                style={{
+                  padding: "8px 16px", borderRadius: 8,
+                  background: "#ef4444", color: "white",
+                  fontSize: 13, fontWeight: 500,
+                  border: "none",
+                  cursor: deleting ? "wait" : "pointer",
+                  opacity: deleting ? 0.7 : 1,
+                }}
+              >
+                {deleting ? "Deleting…" : "Delete form"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <style>{`
         .dashboard-form-card {
           transition: box-shadow 0.15s, border-color 0.15s;
@@ -382,6 +492,14 @@ export function DashboardClient({ forms: initialForms, responseCounts }: Props) 
         }
         .dashboard-card-delete:hover {
           color: #ef4444 !important;
+        }
+        @keyframes dashboardOverlayIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes dashboardDialogIn {
+          from { opacity: 0; transform: translateY(6px) scale(0.98); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
         }
       `}
       </style>
