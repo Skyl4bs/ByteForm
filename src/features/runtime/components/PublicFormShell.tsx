@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import type { Form } from "@/shared/types/form";
 import { FormView } from "./FormView";
+import { RedirectingScreen } from "./RedirectingScreen";
 
 interface Props {
   form: Form;
@@ -23,6 +24,7 @@ async function readErrorMessage(res: Response): Promise<string> {
 
 export function PublicFormShell({ form }: Props) {
   const startedAt = useRef<string | null>(null);
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   const handleStart = useCallback(() => {
     if (!startedAt.current) {
@@ -49,13 +51,21 @@ export function PublicFormShell({ form }: Props) {
       if (!res.ok) {
         throw new Error(await readErrorMessage(res));
       }
+
+      if (form.redirectUrl) {
+        setIsRedirecting(true);
+      }
     },
-    [form.id]
+    [form.id, form.redirectUrl]
   );
 
   return (
     <div className="h-screen w-screen">
-      <FormView form={form} onStart={handleStart} onSubmit={handleSubmit} />
+      {isRedirecting && form.redirectUrl ? (
+        <RedirectingScreen url={form.redirectUrl} />
+      ) : (
+        <FormView form={form} onStart={handleStart} onSubmit={handleSubmit} />
+      )}
     </div>
   );
 }

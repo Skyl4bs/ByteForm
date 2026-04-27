@@ -89,12 +89,21 @@ const slugSchema = z
   .max(120)
   .regex(/^[a-z0-9-]+$/, "slug must be lowercase letters, digits, or hyphens");
 
+// Accepts a valid absolute URL or an empty string (to clear the redirect).
+const redirectUrlSchema = z
+  .string()
+  .refine(
+    (val) => val === "" || /^https?:\/\/.+/.test(val),
+    { message: "Must be a valid URL starting with http:// or https://" }
+  );
+
 const formBaseShape = {
   title: z.string().min(1).max(200),
   slug: slugSchema,
   welcomeScreen: welcomeScreenSchema,
   thankYouScreen: thankYouScreenSchema,
   questions: z.array(questionSchema).max(500),
+  redirectUrl: redirectUrlSchema,
 };
 
 export const createFormSchema = z

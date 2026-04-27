@@ -50,6 +50,7 @@ export function SaveableFormBuilder({ initialForm }: Props) {
     updateThankYouScreen,
     updateFormTitle,
     updateFormSlug,
+    updateRedirectUrl,
     setPublished,
   } = builder;
 
@@ -92,6 +93,7 @@ export function SaveableFormBuilder({ initialForm }: Props) {
           thankYouScreen: f.thankYouScreen,
           questions: f.questions,
           isPublished: f.isPublished,
+          redirectUrl: f.redirectUrl ?? "",
         }),
       });
     } catch {
@@ -116,6 +118,7 @@ export function SaveableFormBuilder({ initialForm }: Props) {
     form.welcomeScreen,
     form.thankYouScreen,
     form.questions,
+    form.redirectUrl,
     saveForm,
   ]);
 
@@ -135,6 +138,7 @@ export function SaveableFormBuilder({ initialForm }: Props) {
           thankYouScreen: f.thankYouScreen,
           questions: f.questions,
           isPublished: next,
+          redirectUrl: f.redirectUrl ?? "",
         }),
       });
       if (next) {
@@ -989,6 +993,58 @@ export function SaveableFormBuilder({ initialForm }: Props) {
                     }}
                   >
                     Lowercase letters, numbers and hyphens only.
+                  </p>
+                </div>
+
+                {/* Redirect URL */}
+                <div>
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: 11,
+                      fontWeight: 500,
+                      color: M,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.06em",
+                      marginBottom: 8,
+                    }}
+                  >
+                    Redirect After Submission
+                  </label>
+                  <input
+                    type="url"
+                    value={form.redirectUrl ?? ""}
+                    onChange={(e) => updateRedirectUrl(e.target.value)}
+                    placeholder="https://example.com/thank-you"
+                    style={{
+                      width: "100%",
+                      padding: "8px 10px",
+                      fontSize: 12,
+                      color: B,
+                      background: I,
+                      border: `0.5px solid ${WA(0.18)}`,
+                      borderRadius: 8,
+                      outline: "none",
+                      boxSizing: "border-box",
+                    }}
+                    onFocus={(e) =>
+                      (e.currentTarget.style.borderColor = WA(0.4))
+                    }
+                    onBlur={(e) =>
+                      (e.currentTarget.style.borderColor = WA(0.18))
+                    }
+                  />
+                  <p
+                    style={{
+                      fontSize: 11,
+                      color: M,
+                      marginTop: 6,
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    {form.redirectUrl
+                      ? "Respondents will be redirected here after submitting."
+                      : "Leave empty to show the thank you screen instead."}
                   </p>
                 </div>
 

@@ -159,6 +159,10 @@ export function useFormBuilder(initialForm?: Form) {
     setForm((f) => ({ ...f, slug, updatedAt: new Date().toISOString() }));
   }, []);
 
+  const updateRedirectUrl = useCallback((redirectUrl: string) => {
+    setForm((f) => ({ ...f, redirectUrl, updatedAt: new Date().toISOString() }));
+  }, []);
+
   const setPublished = useCallback((isPublished: boolean) => {
     setForm((f) => ({ ...f, isPublished, updatedAt: new Date().toISOString() }));
   }, []);
@@ -179,6 +183,7 @@ export function useFormBuilder(initialForm?: Form) {
     updateThankYouScreen,
     updateFormTitle,
     updateFormSlug,
+    updateRedirectUrl,
     setPublished,
   };
 }
