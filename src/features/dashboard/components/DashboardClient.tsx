@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useCallback, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { Database } from "@/shared/types/database";
@@ -209,7 +209,14 @@ export function DashboardClient({ forms: initialForms, responseCounts }: Props) 
   const [forms, setForms] = useState(initialForms);
   const [creating, setCreating] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const router = useRouter();
+
+  const pendingDeleteForm = useMemo(
+    () => forms.find((f) => f.id === pendingDeleteId) ?? null,
+    [forms, pendingDeleteId],
+  );
 
   const { totalResponses, publishedCount } = useMemo(() => ({
     totalResponses: Object.values(responseCounts).reduce((a, b) => a + b, 0),
@@ -232,12 +239,35 @@ export function DashboardClient({ forms: initialForms, responseCounts }: Props) 
     }
   }, [router]);
 
-  const handleDeleteForm = useCallback(async (id: string) => {
-    const res = await fetch(`/api/forms/${id}`, { method: "DELETE" });
-    if (res.ok) {
-      setForms((prev) => prev.filter((f) => f.id !== id));
-    }
+  const handleDeleteForm = useCallback((id: string) => {
+    setPendingDeleteId(id);
   }, []);
+
+  const cancelDelete = useCallback(() => {
+    if (deleting) return;
+    setPendingDeleteId(null);
+  }, [deleting]);
+
+  const confirmDelete = useCallback(async () => {
+    if (!pendingDeleteId) return;
+    setDeleting(true);
+    const res = await fetch(`/api/forms/${pendingDeleteId}`, { method: "DELETE" });
+    if (res.ok) {
+      setForms((prev) => prev.filter((f) => f.id !== pendingDeleteId));
+    }
+    setDeleting(false);
+    setPendingDeleteId(null);
+  }, [pendingDeleteId]);
+
+  useEffect(() => {
+    if (!pendingDeleteId) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") cancelDelete();
+      else if (e.key === "Enter") confirmDelete();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [pendingDeleteId, cancelDelete, confirmDelete]);
 
   const handleCopyLink = useCallback((slug: string, id: string) => {
     const url = `${window.location.origin}/f/${slug}`;
@@ -371,6 +401,59 @@ export function DashboardClient({ forms: initialForms, responseCounts }: Props) 
           </div>
         )}
       </main>
+
+      {pendingDeleteForm && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-form-title"
+          onClick={cancelDelete}
+          className="fixed inset-0 z-[300] flex items-center justify-center p-6 bg-foreground/45 backdrop-blur-sm animate-in fade-in duration-150"
+        >
+          <div
+            onClick={stopPropagation}
+            className="w-full max-w-sm rounded-2xl bg-card border border-border shadow-2xl p-6 animate-in fade-in zoom-in-95 slide-in-from-bottom-1 duration-200"
+          >
+            <div className="w-10 h-10 rounded-lg mb-4 bg-destructive/10 flex items-center justify-center text-destructive">
+              <svg width="18" height="18" viewBox="0 0 12 12" fill="none">
+                <path
+                  d="M2 3.5H10M4.5 3.5V2.5C4.5 2.22 4.72 2 5 2H7C7.28 2 7.5 2.22 7.5 2.5V3.5M9 3.5V9.5C9 10.05 8.55 10.5 8 10.5H4C3.45 10.5 3 10.05 3 9.5V3.5"
+                  stroke="currentColor"
+                  strokeWidth="1.2"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </div>
+            <h2
+              id="delete-form-title"
+              className="font-serif text-xl font-normal tracking-tight text-foreground mb-1.5"
+            >
+              Delete this form?
+            </h2>
+            <p className="text-[13px] text-muted-foreground leading-relaxed mb-5">
+              <strong className="text-foreground font-medium">{pendingDeleteForm.title}</strong>
+              {" "}and all of its responses will be permanently removed. This can&apos;t be undone.
+            </p>
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={cancelDelete}
+                disabled={deleting}
+                className="px-4 py-2 rounded-lg bg-card text-foreground text-[13px] font-medium border border-border hover:bg-foreground/5 hover:border-foreground/20 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                disabled={deleting}
+                autoFocus
+                className="px-4 py-2 rounded-lg bg-destructive text-white text-[13px] font-medium hover:opacity-90 transition disabled:opacity-70 disabled:cursor-wait"
+              >
+                {deleting ? "Deleting…" : "Delete form"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style>{`
         .dashboard-form-card {
