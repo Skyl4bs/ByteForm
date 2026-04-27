@@ -59,6 +59,10 @@ export async function PUT(
   if (body.thankYouScreen !== undefined) update.thank_you_screen = body.thankYouScreen;
   if (body.questions !== undefined) update.questions = body.questions;
   if (body.isPublished !== undefined) update.is_published = body.isPublished;
+  if (body.redirectUrl !== undefined) {
+    // Store empty string as null so the DB column stays clean
+    update.redirect_url = body.redirectUrl === "" ? null : body.redirectUrl;
+  }
 
   const { data, error } = await supabase
     .from("forms")

@@ -60,6 +60,8 @@ export interface Form {
   thankYouScreen: ThankYouScreen;
   questions: Question[];
   isPublished: boolean;
+  /** When set, respondents are redirected here after submitting instead of seeing the thank-you screen. */
+  redirectUrl?: string;
   createdAt: string;
   updatedAt: string;
 }
