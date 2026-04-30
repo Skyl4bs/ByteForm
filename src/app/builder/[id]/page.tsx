@@ -38,6 +38,7 @@ export default async function EditBuilderPage({ params }: Props) {
     thankYouScreen: dbForm.thank_you_screen as Form["thankYouScreen"],
     questions: dbForm.questions as Form["questions"],
     isPublished: dbForm.is_published,
+    redirectUrl: dbForm.redirect_url ?? undefined,
     createdAt: dbForm.created_at,
     updatedAt: dbForm.updated_at,
   };
