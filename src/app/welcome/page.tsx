@@ -79,6 +79,8 @@ const options = [
   },
 ];
 
+const GUEST_DRAFT_KEY = "byteform_guest_draft";
+
 export default function WelcomePage() {
   const [email, setEmail] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -104,10 +106,38 @@ export default function WelcomePage() {
   }
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
+    supabase.auth.getUser().then(async ({ data }) => {
       if (!data.user) {
         router.push("/auth/login");
         return;
+      }
+
+      // Check for a guest draft saved before sign-up
+      try {
+        const raw = localStorage.getItem(GUEST_DRAFT_KEY);
+        if (raw) {
+          const draft = JSON.parse(raw);
+          const slug = generateSlug(draft.title || "Untitled Form");
+          const res = await fetch("/api/forms", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              title: draft.title || "Untitled Form",
+              slug,
+              welcomeScreen: draft.welcomeScreen,
+              thankYouScreen: draft.thankYouScreen,
+              questions: draft.questions,
+            }),
+          });
+          if (res.ok) {
+            localStorage.removeItem(GUEST_DRAFT_KEY);
+            const form = await res.json();
+            router.push(`/builder/${form.id}`);
+            return;
+          }
+        }
+      } catch {
+        // Malformed draft or API error — fall through to normal welcome
       }
       setEmail(data.user.email ?? null);
       setLoading(false);
