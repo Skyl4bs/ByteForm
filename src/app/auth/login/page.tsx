@@ -533,12 +533,12 @@ function LoginForm() {
 
         {/* Bottom note */}
         <p style={{ fontSize: 12, color: IA(0.2) }}>
-          A <span style={{ color: IA(0.35) }}>skyl4b</span> product ·{" "}
+          A <span style={{ color: IA(0.35) }}>Byteform</span> product ·{" "}
           <a
-            href="mailto:team@skyl4b.com"
+            href="mailto:team@getbyteform.com"
             style={{ color: IA(0.35), textDecoration: "none" }}
           >
-            team@skyl4b.com
+            team@getbyteform.com
           </a>
         </p>
       </div>
