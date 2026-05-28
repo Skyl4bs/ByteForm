@@ -442,10 +442,10 @@ export default function WelcomePage() {
         >
           Need help?{" "}
           <a
-            href="mailto:team@skyl4b.com"
+            href="mailto:team@getbyteform.com"
             style={{ color: W, textDecoration: "none" }}
           >
-            team@skyl4b.com
+            team@getbyteform.com
           </a>
         </p>
       </div>
