@@ -32,9 +32,16 @@ export function initPostHog(): void {
     // Anonymous traffic is still tracked for funnels/retention, but we
     // don't burn billed MTUs on people who never sign up.
     person_profiles: "identified_only",
-    // Session recording is off by default — enable it from the PostHog UI
-    // when you actually need it, so we don't ship surprise recording.
-    disable_session_recording: true,
+    // Session recording is enabled — controlled centrally from the PostHog
+    // UI (Project settings → Session replay) so we can throttle sampling
+    // or pause without a deploy.
+    disable_session_recording: false,
+    session_recording: {
+      // Mask all <input>, <textarea> and elements marked `ph-no-capture`
+      // so we never record what people type. Visual interactions only.
+      maskAllInputs: true,
+      maskTextSelector: ".ph-no-capture",
+    },
     // Quieter console in development.
     loaded: (ph) => {
       if (process.env.NODE_ENV === "development") ph.debug(false);
